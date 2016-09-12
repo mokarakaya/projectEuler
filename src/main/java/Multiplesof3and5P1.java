@@ -1,5 +1,5 @@
 /**
- * Created by p.bell on 05.09.2016.
+ * Created by mokarakaya on 05.09.2016.
  */
 public class Multiplesof3and5P1 {
     public static void main(String[] args) {

@@ -3,7 +3,7 @@ import java.text.NumberFormat;
 import java.util.Arrays;
 
 /**
- * Created by p.bell on 05.09.2016.
+ * Created by mokarakaya on 05.09.2016.
  */
 public class SummationofPrimesP10 {
 

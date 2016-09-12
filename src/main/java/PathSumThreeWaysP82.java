@@ -3,7 +3,7 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 /**
- * Created by 212457624 on 9/7/2016.
+ * Created by mokarakaya on 9/7/2016.
  */
 public class PathSumThreeWaysP82 {
     public static void main(String[] args) throws FileNotFoundException {
