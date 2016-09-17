@@ -11,100 +11,81 @@ public class PathSumFourWaysP83 {
         PathSumFourWaysP83 t = new PathSumFourWaysP83();
         System.out.println(t.solution());
     }
-
     private int solution() throws FileNotFoundException {
-        List<Node> openList=new ArrayList<Node>();
-        List<Node> closedList=new ArrayList<Node>();
-        //int[][] cost = InputReader.readIntMatrix(80, "c:/Temp/p083_matrix.txt");
-        //Node[][] parents=new Node[80][80];
-        //int totalCost=cost[79][79];
-        int[][]cost={{1,2,3},{1,2,3},{1,2,3}};
-        Node[][] parents=new Node[3][3];
-        int totalCost=cost[2][2];
+        int[][] cost = InputReader.readIntMatrix(80, "c:/Temp/p083_matrix.txt");
+        Node[][] shortestPaths=new Node[80][80];
 
-        Node edgeNode = runAStar(openList, closedList, new Node(0, 0), cost,parents );
-
-        while(edgeNode!=null){
-            totalCost+=cost[edgeNode.i][edgeNode.j];
-            edgeNode=parents[edgeNode.i][edgeNode.j];
-        }
-        return totalCost;
+        /*int[][]cost={{1,2,3},{1,2,3},{1,2,3}};
+        Node[][] shortestPaths=new Node[3][3];*/
+        Node startNode= new Node();
+        startNode.cost=cost[0][0];
+        shortestPaths[0][0]=startNode;
+        return runDjkstra(cost,shortestPaths,0,0);
     }
 
-    private Node runAStar(List<Node> openList, List<Node> closedList, Node node, int[][] cost, Node[][] parents) {
-        closedList.add(node);
-        if(!setParentForNeighbors(openList,closedList,node,cost,parents)){
-            Node next=getNext(openList);
-            return runAStar(openList,closedList,next,cost,parents);
-        }else{
-            return node;
+    private int runDjkstra(int[][] cost, Node[][] shortestPaths,int i,int j) {
+//i!=cost.length-1 && j!=cost[0].length-1
+        while(true) {
+            Node node = shortestPaths[i][j];
+            if (i != 0) {
+                updateCost(cost, shortestPaths, i - 1, j, node);
+            }
+            if (j != 0) {
+                updateCost(cost, shortestPaths, i, j - 1, node);
+            }
+            if (i != cost.length - 1) {
+                updateCost(cost, shortestPaths, i + 1, j, node);
+            }
+            if (j != cost[0].length - 1) {
+                updateCost(cost, shortestPaths, i, j + 1, node);
+            }
+            node.visited = true;
+            Map<String, Integer> map = getShortestUnvisited(shortestPaths);
+            if (map.get("i") == null) {
+                return shortestPaths[i][j].cost;
+            }
+            i=map.get("i");
+            j=map.get("j");
         }
-
-    }
-    private boolean setParentForNeighbors(List<Node> openList,List<Node> closedList, Node node, int[][] cost, Node[][] parents) {
-
-        boolean edgeNode=false;
-        if(node.i!=0){
-            edgeNode= edgeNode || setParentForNeighbor(openList,closedList,node,cost,parents,node.i-1,node.j);
-        }
-        if(node.j!=0){
-            edgeNode= edgeNode || setParentForNeighbor(openList,closedList,node,cost,parents,node.i,node.j-1);
-        }
-        if(node.i!=cost.length-1){
-            edgeNode= edgeNode || setParentForNeighbor(openList,closedList,node,cost,parents,node.i+1,node.j);
-        }
-        if(node.j!=cost[0].length-1){
-            edgeNode= edgeNode || setParentForNeighbor(openList,closedList,node,cost,parents,node.i,node.j+1);
-        }
-        return edgeNode;
     }
 
-    private boolean setParentForNeighbor(List<Node> openList, List<Node> closedList, Node node, int[][] cost,
-                                         Node[][] parents, int i, int j) {
-        Node newNode = new Node(i, j);
-        if(!closedList.contains(newNode)) {
-            parents[i][j] = node;
-            newNode.calculateGCost(cost);
-            openList.add(newNode);
+    private Map<String, Integer> getShortestUnvisited(Node[][] shortestPaths) {
+        Map<String,Integer> map=new HashMap<>();
+        int shortest=Integer.MAX_VALUE;
+        for(int i=0;i<shortestPaths.length;i++){
+            for(int j=0;j<shortestPaths[0].length;j++){
+                Node node=shortestPaths[i][j];
+                if(node!=null && !node.visited && node.cost<shortest){
+                    map.put("i",i);
+                    map.put("j",j);
+                    shortest=node.cost;
+                }
+            }
         }
-        return i == cost.length - 1 && j == cost[0].length - 1;
+        return map;
     }
-    
-    private Node getNext(List<Node> openList) {
-        openList.sort((o1,o2)->o1.gCost-o2.gCost);
-        Node first = openList.iterator().next();
-        openList.remove(first);
-        return first;
+
+    private void updateCost(int[][] cost, Node[][] shortestPaths, int i, int j,Node parent) {
+        if(shortestPaths[i][j]==null){
+            shortestPaths[i][j]=new Node();
+        }
+        Node node= shortestPaths[i][j];
+        int newPath = parent.cost + cost[i][j];
+        if(node.cost>newPath){
+            node.cost=newPath;
+            node.parent=parent;
+        }
     }
 
 
 }
-
-class Node {
-    public int i;
-    public int j;
-    public int gCost;
-    Node(int i, int j){
-        this.i=i;
-        this.j=j;
+ class Node {
+    public int cost;
+    public Node parent;
+    public boolean visited;
+    Node(){
+        this.cost=Integer.MAX_VALUE;
     }
 
-    public void calculateGCost(int[][] cost) {
-        gCost=(cost.length-1 -i + cost[0].length-1-j)+cost[i][j];
-    }
-    @Override
-    public boolean equals(Object o){
-        if(o instanceof Node){
-            Node obj= (Node) o;
-            return i==obj.i&& j==obj.j;
-        }
-        return false;
-    }
-    @Override
-    public int hashCode(){
-        int result=1;
-        result+=31*i;
-        result+=23*j;
-        return result;
-    }
+
 }
