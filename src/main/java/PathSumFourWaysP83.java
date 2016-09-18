@@ -24,7 +24,6 @@ public class PathSumFourWaysP83 {
     }
 
     private int runDjkstra(int[][] cost, Node[][] shortestPaths,int i,int j) {
-//i!=cost.length-1 && j!=cost[0].length-1
         while(true) {
             Node node = shortestPaths[i][j];
             if (i != 0) {
@@ -73,7 +72,6 @@ public class PathSumFourWaysP83 {
         int newPath = parent.cost + cost[i][j];
         if(node.cost>newPath){
             node.cost=newPath;
-            node.parent=parent;
         }
     }
 
@@ -81,7 +79,6 @@ public class PathSumFourWaysP83 {
 }
  class Node {
     public int cost;
-    public Node parent;
     public boolean visited;
     Node(){
         this.cost=Integer.MAX_VALUE;
