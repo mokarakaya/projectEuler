@@ -2,6 +2,8 @@ package util;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 /**
@@ -24,22 +26,19 @@ public class InputReader {
         }
         return cost;
     }
-    public static int[][] readIntMatrix(int size,String fileName) throws FileNotFoundException {
-        int[][]cost=new int[size][size];
+    public static Map<Integer,Integer>  readInput(int size,String fileName) throws FileNotFoundException {
+        Map<Integer,Integer> cost=new HashMap<>();
         Scanner input = new Scanner(new File(fileName));
         int count=0;
-        int min=Integer.MAX_VALUE;
         while(input.hasNextLine())
         {
             String[] split = input.nextLine().split(",");
             for(int i=0;i<split.length;i++){
-                cost[count][i]=Integer.parseInt(split[i]);
-                min=Math.min(min,cost[count][i]);
+                cost.put(size*count+i,Integer.parseInt(split[i]));
             }
             count++;
-
         }
-        System.out.println(min);
+
         return cost;
     }
 }

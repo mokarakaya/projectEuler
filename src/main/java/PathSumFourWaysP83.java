@@ -2,77 +2,72 @@ import util.InputReader;
 
 import java.io.FileNotFoundException;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 /**
+ * we can run Dijkstra algorithm to find shortest path.
  * Created by mokarakaya on 13.09.2016.
  */
 public class PathSumFourWaysP83 {
+    private  static final int SIZE=80;
     public static void main(String[] args) throws FileNotFoundException {
         PathSumFourWaysP83 t = new PathSumFourWaysP83();
         System.out.println(t.solution());
     }
     private int solution() throws FileNotFoundException {
-        int[][] cost = InputReader.readIntMatrix(80, "c:/Temp/p083_matrix.txt");
-        Node[][] shortestPaths=new Node[80][80];
-
-        /*int[][]cost={{1,2,3},{1,2,3},{1,2,3}};
-        Node[][] shortestPaths=new Node[3][3];*/
+        Map<Integer, Integer> cost = InputReader.readInput(SIZE, "c:/Temp/p083_matrix.txt");
+        Map<Integer,Node>  shortestPaths=new HashMap<>();
         Node startNode= new Node();
-        startNode.cost=cost[0][0];
-        shortestPaths[0][0]=startNode;
-        return runDjkstra(cost,shortestPaths,0,0);
+        startNode.cost=cost.get(0);
+        shortestPaths.put(0,startNode);
+        return runDijkstra(cost,shortestPaths,0);
     }
 
-    private int runDjkstra(int[][] cost, Node[][] shortestPaths,int i,int j) {
+    private int runDijkstra(Map<Integer, Integer> cost, Map<Integer,Node> shortestPaths,int index) {
+        //recursion returns stack over flow error.
         while(true) {
-            Node node = shortestPaths[i][j];
-            if (i != 0) {
-                updateCost(cost, shortestPaths, i - 1, j, node);
+            Node node = shortestPaths.get(index);
+            //look up
+            if (index >= SIZE) {
+                updateCost(cost, shortestPaths, index-SIZE, node);
             }
-            if (j != 0) {
-                updateCost(cost, shortestPaths, i, j - 1, node);
+            //look left
+            if (index % SIZE != 0) {
+                updateCost(cost, shortestPaths, index-1, node);
             }
-            if (i != cost.length - 1) {
-                updateCost(cost, shortestPaths, i + 1, j, node);
+            //look down
+            if (index < SIZE*(SIZE-1)) {
+                updateCost(cost, shortestPaths, index+SIZE, node);
             }
-            if (j != cost[0].length - 1) {
-                updateCost(cost, shortestPaths, i, j + 1, node);
+            //look right
+            if (index %SIZE!= SIZE-1) {
+                updateCost(cost, shortestPaths, index+1, node);
             }
             node.visited = true;
-            Map<String, Integer> map = getShortestUnvisited(shortestPaths);
-            if (map.get("i") == null) {
-                return shortestPaths[i][j].cost;
+            int shortestUnvisited= getShortestUnvisited(shortestPaths);
+            if (shortestUnvisited==-1) {
+                return shortestPaths.get(index).cost;
             }
-            i=map.get("i");
-            j=map.get("j");
+            index=shortestUnvisited;
         }
     }
 
-    private Map<String, Integer> getShortestUnvisited(Node[][] shortestPaths) {
-        Map<String,Integer> map=new HashMap<>();
-        int shortest=Integer.MAX_VALUE;
-        for(int i=0;i<shortestPaths.length;i++){
-            for(int j=0;j<shortestPaths[0].length;j++){
-                Node node=shortestPaths[i][j];
-                if(node!=null && !node.visited && node.cost<shortest){
-                    map.put("i",i);
-                    map.put("j",j);
-                    shortest=node.cost;
-                }
-            }
-        }
-        return map;
+    private int getShortestUnvisited(Map<Integer,Node> shortestPaths) {
+        Optional<Integer> shortestUnvisited = shortestPaths.entrySet().stream()
+                .filter(node -> !node.getValue().visited)
+                .min((o1, o2) -> o1.getValue().cost - o2.getValue().cost)
+                .map(Map.Entry::getKey);
+        return shortestUnvisited.isPresent()? shortestUnvisited.get():-1;
     }
 
-    private void updateCost(int[][] cost, Node[][] shortestPaths, int i, int j,Node parent) {
-        if(shortestPaths[i][j]==null){
-            shortestPaths[i][j]=new Node();
-        }
-        Node node= shortestPaths[i][j];
-        int newPath = parent.cost + cost[i][j];
-        if(node.cost>newPath){
-            node.cost=newPath;
-        }
+    private void updateCost(Map<Integer,Integer> cost, Map<Integer,Node> shortestPaths, int index,Node parent) {
+        shortestPaths.putIfAbsent(index,new Node());
+        Node node= shortestPaths.get(index);
+        node.cost=Math.min(node.cost,parent.cost + cost.get(index));
     }
 
 
