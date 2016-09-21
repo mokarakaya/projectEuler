@@ -36,7 +36,7 @@ public class MinimalNetworkP107 {
                 nodes.put(edge.nodes[1], firstGraphId);
                 graphs.get(firstGraphId).add(edge);
             }else if(firstGraphId !=null && secondGraphId !=null
-                    && firstGraphId.intValue()!= secondGraphId){
+                    && firstGraphId!= secondGraphId){
                 merge(nodes,edge,graphs);
             }
 
