@@ -9,35 +9,40 @@ import java.util.stream.Collectors;
  */
 public class MinimalNetworkP107 {
     public static void main(String[] args) throws FileNotFoundException {
-        List<Edge> list = readList("c:/Temp/p107_network.txt");
+
         MinimalNetworkP107 t = new MinimalNetworkP107();
+        List<Edge> list = t.readList("c:/Temp/p107_network.txt");
         System.out.println(t.solution(list));
     }
 
     private int solution(List<Edge> list) {
+        //keeps nodeId,graphId -> so, finding graph of the node is O(1)
         Map<Integer, Integer> nodes=new HashMap<>();
+        //keeps graphId, graph
         Map<Integer, List<Edge>>graphs=new HashMap<>();
         for (Edge edge : list) {
-            if(nodes.get(edge.nodes[0])==null && nodes.get(edge.nodes[1])==null){
+            Integer firstGraphId = nodes.get(edge.nodes[0]);
+            Integer secondGraphId = nodes.get(edge.nodes[1]);
+            if(firstGraphId ==null && secondGraphId ==null){
                 nodes.put(edge.nodes[0],edge.nodes[0]);
                 nodes.put(edge.nodes[1],edge.nodes[0]);
-                graphs.putIfAbsent(edge.nodes[0],new ArrayList<>());
-                graphs.get(edge.nodes[0]).add(edge);
-            }else if(nodes.get(edge.nodes[0])==null && nodes.get(edge.nodes[1])!=null){
-                nodes.put(edge.nodes[0],nodes.get(edge.nodes[1]));
-                graphs.putIfAbsent(nodes.get(edge.nodes[1]),new ArrayList<>());
-                graphs.get(nodes.get(edge.nodes[1])).add(edge);
-            }else if(nodes.get(edge.nodes[0])!=null && nodes.get(edge.nodes[1])==null){
-                nodes.put(edge.nodes[1],nodes.get(edge.nodes[0]));
-                graphs.putIfAbsent(nodes.get(edge.nodes[0]),new ArrayList<>());
-                graphs.get(nodes.get(edge.nodes[0])).add(edge);
-            }else if(nodes.get(edge.nodes[0])!=null && nodes.get(edge.nodes[1])!=null
-                    &&nodes.get(edge.nodes[0]).intValue()!=nodes.get(edge.nodes[1])){
+                List<Edge> graphList=new ArrayList<>();
+                graphList.add(edge);
+                graphs.put(edge.nodes[0],graphList);
+            }else if(firstGraphId ==null && secondGraphId !=null){
+                nodes.put(edge.nodes[0], secondGraphId);
+                graphs.get(secondGraphId).add(edge);
+            }else if(firstGraphId !=null && secondGraphId ==null){
+                nodes.put(edge.nodes[1], firstGraphId);
+                graphs.get(firstGraphId).add(edge);
+            }else if(firstGraphId !=null && secondGraphId !=null
+                    && firstGraphId.intValue()!= secondGraphId){
                 merge(nodes,edge,graphs);
             }
 
         }
 
+        //we have only one graph which is minimum spanning tree.
         int sum = graphs.get(graphs.keySet().iterator().next())
                 .stream().mapToInt(edge -> edge.cost).sum();
         int total=list.stream().mapToInt(edge -> edge.cost).sum();
@@ -45,20 +50,22 @@ public class MinimalNetworkP107 {
     }
 
     private void merge(Map<Integer, Integer> nodes, Edge edge, Map<Integer, List<Edge>> graphs) {
-        graphs.get(nodes.get(edge.nodes[0])).addAll(graphs.get(nodes.get(edge.nodes[1])));
-        graphs.get(nodes.get(edge.nodes[0])).add(edge);
-        graphs.remove(nodes.get(edge.nodes[1]));
+        final Integer firstGraphId = nodes.get(edge.nodes[0]);
+        final Integer secondGraphId = nodes.get(edge.nodes[1]);
+        graphs.get(firstGraphId).addAll(graphs.get(secondGraphId));
+        graphs.get(firstGraphId).add(edge);
+        graphs.remove(secondGraphId);
         List<Integer> collect = nodes.entrySet().stream()
-                .filter(map -> map.getValue().intValue() == nodes.get(edge.nodes[1]).intValue())
+                .filter(map -> map.getValue()== secondGraphId)
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
         for(int key: collect){
-            nodes.put(key,nodes.get(edge.nodes[0]));
+            nodes.put(key, firstGraphId);
         }
 
     }
 
-    public static List<Edge> readList(String fileName) throws FileNotFoundException {
+    public List<Edge> readList(String fileName) throws FileNotFoundException {
         Scanner input = new Scanner(new File(fileName));
         int count=0;
         List<Edge> list= new ArrayList<>();
