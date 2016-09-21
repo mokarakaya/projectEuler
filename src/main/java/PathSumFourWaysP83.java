@@ -31,6 +31,7 @@ public class PathSumFourWaysP83 {
         //recursion returns stack over flow error.
         while(true) {
             Node node = shortestPaths.get(index);
+            node.visited = true;
             //look up
             if (index >= SIZE) {
                 updateCost(cost, shortestPaths, index-SIZE, node);
@@ -47,7 +48,6 @@ public class PathSumFourWaysP83 {
             if (index %SIZE!= SIZE-1) {
                 updateCost(cost, shortestPaths, index+1, node);
             }
-            node.visited = true;
             int shortestUnvisited= getShortestUnvisited(shortestPaths);
             if (shortestUnvisited==-1) {
                 return shortestPaths.get(index).cost;
