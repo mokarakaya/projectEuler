@@ -1,31 +1,24 @@
-import java.io.File;
+import util.InputReader;
+
 import java.io.FileNotFoundException;
-import java.util.Scanner;
 
 /**
  * Created by mokarakaya on 9/7/2016.
  */
 public class PathSumTwoWaysP81 {
+
+    public static final int SIZE = 80;
+
     public static void main(String[] args) throws FileNotFoundException {
         PathSumTwoWaysP81 t = new PathSumTwoWaysP81();
         System.out.println(t.solution());
     }
     private double  solution() throws FileNotFoundException {
-        double[][]totalCost= new double[80][80];
-        double[][]cost=new double[80][80];
-        Scanner input = new Scanner(new File("d:/p081_matrix.txt"));
-        int count=0;
-        while(input.hasNextLine())
-        {
-            String[] split = input.nextLine().split(",");
-            for(int i=0;i<split.length;i++){
-                cost[count][i]=Double.parseDouble(split[i]);
-            }
-            count++;
-
-        }
+        double[][]totalCost= new double[SIZE][SIZE];
+        InputReader reader=new InputReader();
+        double[][]cost= reader.readMatrix(SIZE,"81");
         totalCost[0][0]=cost[0][0];
-        return findMinPath(cost,totalCost,79,79);
+        return findMinPath(cost,totalCost,SIZE-1,SIZE-1);
     }
 
     private double findMinPath(double[][] cost, double[][] totalCost, int i, int j) {

@@ -1,5 +1,6 @@
 
-import java.io.File;
+import util.Edge;
+import util.InputReader;
 import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -11,7 +12,8 @@ public class MinimalNetworkP107 {
     public static void main(String[] args) throws FileNotFoundException {
 
         MinimalNetworkP107 t = new MinimalNetworkP107();
-        List<Edge> list = t.readList("c:/Temp/p107_network.txt");
+        InputReader reader=new InputReader();
+        List<Edge> list = reader.readList("107");
         System.out.println(t.solution(list));
     }
 
@@ -29,14 +31,13 @@ public class MinimalNetworkP107 {
                 List<Edge> graphList=new ArrayList<>();
                 graphList.add(edge);
                 graphs.put(edge.nodes[0],graphList);
-            }else if(firstGraphId ==null && secondGraphId !=null){
+            }else if(firstGraphId ==null ){
                 nodes.put(edge.nodes[0], secondGraphId);
                 graphs.get(secondGraphId).add(edge);
-            }else if(firstGraphId !=null && secondGraphId ==null){
+            }else if(secondGraphId ==null){
                 nodes.put(edge.nodes[1], firstGraphId);
                 graphs.get(firstGraphId).add(edge);
-            }else if(firstGraphId !=null && secondGraphId !=null
-                    && firstGraphId!= secondGraphId){
+            }else if(!firstGraphId.equals(secondGraphId)){
                 merge(nodes,edge,graphs);
             }
 
@@ -56,7 +57,7 @@ public class MinimalNetworkP107 {
         graphs.get(firstGraphId).add(edge);
         graphs.remove(secondGraphId);
         List<Integer> collect = nodes.entrySet().stream()
-                .filter(map -> map.getValue()== secondGraphId)
+                .filter(map -> map.getValue().equals(secondGraphId))
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
         for(int key: collect){
@@ -65,36 +66,6 @@ public class MinimalNetworkP107 {
 
     }
 
-    public List<Edge> readList(String fileName) throws FileNotFoundException {
-        Scanner input = new Scanner(new File(fileName));
-        int count=0;
-        List<Edge> list= new ArrayList<>();
-        while(input.hasNextLine())
-        {
-            String[] split = input.nextLine().split(",");
-            for(int i=count;i<split.length;i++){
-                String splitted = split[i];
-                if(!"-".equals(splitted)){
-                    list.add(new Edge(count,i,Integer.parseInt(split[i])));
-                }
-            }
-            count++;
 
-        }
-        list.sort((edge1,edge2)->edge1.cost-edge2.cost);
-        return list;
-    }
-
-}
-class Edge {
-    public int[] nodes;
-    public int cost;
-    public Edge(int i, int j, int cost){
-        nodes= new int[2];
-        nodes[0]=i;
-        nodes[1]=j;
-        this.cost=cost;
-
-    }
 
 }

@@ -2,11 +2,6 @@ import util.InputReader;
 
 import java.io.FileNotFoundException;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.toList;
 
 /**
  * we can run Dijkstra algorithm to find shortest path.
@@ -19,7 +14,8 @@ public class PathSumFourWaysP83 {
         System.out.println(t.solution());
     }
     private int solution() throws FileNotFoundException {
-        Map<Integer, Integer> cost = InputReader.readInput(SIZE, "c:/Temp/p083_matrix.txt");
+        InputReader reader=new InputReader();
+        Map<Integer, Integer> cost = reader.readInput("83");
         Map<Integer,Node>  shortestPaths=new HashMap<>();
         Node startNode= new Node();
         startNode.cost=cost.get(0);
